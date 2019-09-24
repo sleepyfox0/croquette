@@ -1,7 +1,12 @@
 package croquette.ui
 
+import croquette.ui.paint.DropPainter
+import croquette.ui.paint.PainterManager
 import croquette.util.Randomizer
 import java.awt.Dimension
+import java.awt.GridBagConstraints
+import java.awt.GridBagLayout
+import java.awt.Insets
 import java.nio.file.Files
 import javax.swing.*
 
@@ -11,35 +16,91 @@ class CWin : JFrame("Croquette") {
     private val content = JPanel()
     private val open = JButton("Open")
     private val play = JButton("Run")
-    private val lTime = JLabel("Time: ")
-    private val cbTime = JComboBox(arrayOf("1", "2", "5", "10"))
+    private val lMinutes = JLabel("Minutes:")
+    private val sMinutes = JSpinner()
+    private val lSeconds = JLabel("Seconds:")
+    private val sSeconds = JSpinner()
+    private val drop = DropPanel()
+
     private val rand = Randomizer()
+    private val pm = PainterManager()
+    private val dP = DropPainter(drop)
 
     init {
         content.preferredSize = Dimension(320, 240)
         buildGUI()
         buildBehaviour()
         defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
+        pm.add(dP)
     }
 
     private fun buildGUI() {
-        open.background = BLUE
+        content.background = BLACK
+        content.layout = GridBagLayout()
+
+        open.background = GREY
         open.foreground = WHITE
         open.isFocusPainted = false
+        var c = GridBagConstraints()
+        c.gridx = 0
+        c.gridy = 0
+        c.anchor = GridBagConstraints.LINE_START
+        c.insets = Insets(6, 6, 6, 6)
+        content.add(open, c)
 
-        play.background = BLUE
+        play.background = GREY
         play.foreground = WHITE
         play.isFocusPainted = false
         play.isEnabled = false
+        c = GridBagConstraints()
+        c.gridx = 1
+        c.gridy = 0
+        c.anchor = GridBagConstraints.LINE_START
+        c.insets = Insets(6, 6, 6, 6)
+        content.add(play, c)
 
-        lTime.background = BLACK
-        lTime.foreground = WHITE
+        lMinutes.background = BLACK
+        lMinutes.foreground = WHITE
+        c = GridBagConstraints()
+        c.gridx = 0
+        c.gridy = 1
+        c.anchor = GridBagConstraints.LINE_START
+        c.insets = Insets(6, 6, 6, 6)
+        content.add(lMinutes, c)
 
-        content.background = BLACK
-        content.add(open)
-        content.add(play)
-        content.add(lTime)
-        content.add(cbTime)
+        c = GridBagConstraints()
+        c.gridx = 1
+        c.gridy = 1
+        c.anchor = GridBagConstraints.LINE_START
+        c.insets = Insets(6, 6, 6, 6)
+        content.add(sMinutes, c)
+
+        lSeconds.background = BLACK
+        lSeconds.foreground = WHITE
+        c = GridBagConstraints()
+        c.gridx = 2
+        c.gridy = 1
+        c.anchor = GridBagConstraints.LINE_START
+        c.insets = Insets(6, 6, 6, 6)
+        content.add(lSeconds, c)
+
+        c = GridBagConstraints()
+        c.gridx = 3
+        c.gridy = 1
+        c.anchor = GridBagConstraints.LINE_START
+        c.insets = Insets(6, 6, 6, 6)
+        content.add(sSeconds, c)
+
+        c = GridBagConstraints()
+        c.gridx = 0
+        c.gridy = 2
+        c.gridwidth = 4
+        c.weightx = 0.8
+        c.weighty = 0.8
+        c.anchor = GridBagConstraints.CENTER
+        c.fill = GridBagConstraints.BOTH
+        c.insets = Insets(6, 6, 6, 6)
+        content.add(drop, c)
 
         add(content)
     }
@@ -70,21 +131,36 @@ class CWin : JFrame("Croquette") {
         }
 
         play.addActionListener {
-            val t = cbTime.selectedItem
+            val m = sMinutes.value
+            val s = sSeconds.value
             var time = 1
-            if (t is String) {
-                time = t.toInt()
+            if (m is Int) {
+                time = m * 60
             }
-            time *= 60000
+
+            if (s is Int) {
+                time += s
+            }
+            time *= 1000
+            time = if (time < 1000) 1000 else time
+
             isVisible = false
             SlideShow(rand, time).exec()
             dispose()
         }
+
+
+        val modelMinutes = SpinnerNumberModel(5, 0, 60, 1)
+        sMinutes.model = modelMinutes
+
+        val modelSeconds = SpinnerNumberModel(0, 0, 60, 1)
+        sSeconds.model = modelSeconds
     }
 
     fun exec() {
         pack()
         setLocationRelativeTo(null)
         isVisible = true
+        pm.go()
     }
 }

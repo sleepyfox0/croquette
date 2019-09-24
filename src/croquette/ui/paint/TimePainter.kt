@@ -2,7 +2,6 @@ package croquette.ui.paint
 
 import croquette.ui.BLACK
 import croquette.ui.RED
-import java.awt.Graphics
 import java.awt.Graphics2D
 import javax.swing.JPanel
 

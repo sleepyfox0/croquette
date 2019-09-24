@@ -10,6 +10,9 @@ class PainterManager {
     }
 
     fun go() {
+        painters.forEach {
+            it.load()
+        }
         val t = Thread {
             while (isRunning) {
                 painters.forEach {

@@ -33,10 +33,10 @@ class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croqu
     }
 
     private fun buildGUI() {
-        contents.background = BLUE
+        contents.background = GREY
         contents.layout = GridBagLayout()
 
-        cbPin.background = BLUE
+        cbPin.background = GREY
         cbPin.foreground = WHITE
         cbPin.isFocusable = false
         var c = GridBagConstraints()
@@ -48,7 +48,7 @@ class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croqu
 
         //cbPin.foreground = Color.WHITE
 
-        lTime.background = BLUE
+        lTime.background = GREY
         lTime.foreground = WHITE
         c = GridBagConstraints()
         c.fill = GridBagConstraints.NONE
