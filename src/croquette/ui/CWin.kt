@@ -7,6 +7,7 @@ import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.Insets
+import java.io.File
 import java.nio.file.Files
 import javax.swing.*
 
@@ -20,7 +21,7 @@ class CWin : JFrame("Croquette") {
     private val sMinutes = JSpinner()
     private val lSeconds = JLabel("Seconds:")
     private val sSeconds = JSpinner()
-    private val drop = DropPanel()
+    private val drop = DropPanel(this::handleFiles)
 
     private val rand = Randomizer()
     private val pm = PainterManager()
@@ -111,22 +112,8 @@ class CWin : JFrame("Croquette") {
             fc.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
             val selection = fc.showOpenDialog(this)
             if (selection == JFileChooser.APPROVE_OPTION) {
-                rand.clear()
                 val f = fc.selectedFile
-                println("Selected: ${f.absolutePath}")
-                val files = f.listFiles()
-                files?.forEach {
-                    if (it.isFile) {
-                        val mime = Files.probeContentType(it.toPath())
-                        if (mime != null)
-                            if (MIME_TYPES.contains(mime.trim()))
-                                rand.add(it)
-                    }
-                }
-                rand.shuffle()
-                rand.list()
-
-                play.isEnabled = rand.isReady
+                handleFiles(f)
             }
         }
 
@@ -155,6 +142,24 @@ class CWin : JFrame("Croquette") {
 
         val modelSeconds = SpinnerNumberModel(0, 0, 60, 1)
         sSeconds.model = modelSeconds
+    }
+
+    private fun handleFiles(f: File) {
+        rand.clear()
+        println("Selected: ${f.absolutePath}")
+        val files = f.listFiles()
+        files?.forEach {
+            if (it.isFile) {
+                val mime = Files.probeContentType(it.toPath())
+                if (mime != null)
+                    if (MIME_TYPES.contains(mime.trim()))
+                        rand.add(it)
+            }
+        }
+        rand.shuffle()
+        rand.list()
+
+        play.isEnabled = rand.isReady
     }
 
     fun exec() {

@@ -15,7 +15,7 @@ import kotlin.math.sin
 class DropPainter(canvas: JPanel) : Painter(canvas) {
 
     private val FPS = ((1.0 / 24.0) * 1_000_000_000).toLong()
-    private val waiting = 5 * 24
+    private val waiting = 10 * 24
 
     private var img = BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB)
     private val font = JLabel().font
@@ -25,6 +25,7 @@ class DropPainter(canvas: JPanel) : Painter(canvas) {
     private var pixels = IntArray(1)
     private var ns = IntArray(1)
     private var pal = DoubleArray(256)
+    private var palColour = IntArray(256)
     private var intensity = 0.0
 
     private var state = 0
@@ -32,12 +33,58 @@ class DropPainter(canvas: JPanel) : Painter(canvas) {
     private var t: Long = 0
 
     private var timer = 0
+    private var lrp = 0.0
 
     init {
         for ((idx, _) in pal.withIndex()) {
             val v = (sin(idx.toDouble() / 255.0 * (2 *PI)) * 0.5) + 0.5
             pal[idx] = v
         }
+
+        for ((idx, _) in palColour.withIndex()) {
+            val r = (sin(idx.toDouble() / 255.0 * (6 *PI)) * 0.5) + 0.5
+            val g = (sin(idx.toDouble() / 255.0 * (2 *PI)) * 0.5) + 0.5
+            val b = (sin(idx.toDouble() / 255.0 * (4 *PI)) * 0.5) + 0.5
+
+            val ir = (r * 255.0).toInt()
+            val ig = (g * 255.0).toInt()
+            val ib = (b * 255.0).toInt()
+
+            val c = (ir shl 16) or (ig shl 8) or ib
+            palColour[idx] = c
+        }
+    }
+
+    private fun lerpColours(c1: Int, c2: Int, t: Double): Int {
+        val ir1 = (c1 and (0xff shl 16)) shr 16
+        val ig1 = (c1 and (0xff shl 8)) shr 8
+        val ib1 = c1 and 0xff
+
+        val ir2 = (c2 and (0xff shl 16)) shr 16
+        val ig2 = (c2 and (0xff shl 8)) shr 8
+        val ib2 = c2 and 0xff
+
+        val r1 = (ir1 / 255.0)
+        val g1 = (ig1 / 255.0)
+        val b1 = (ib1 / 255.0)
+
+        val r2 = (ir2 / 255.0)
+        val g2 = (ig2 / 255.0)
+        val b2 = (ib2 / 255.0)
+
+        val nr = lerp(r1, r2, t)
+        val ng = lerp(g1, g2, t)
+        val nb = lerp(b1, b2, t)
+
+        val nri = (nr * 255.0).toInt()
+        val ngi = (ng * 255.0).toInt()
+        val nbi = (nb * 255.0).toInt()
+
+        return (nri shl 16) or (ngi shl 8) or nbi
+    }
+
+    private fun lerp(v0: Double, v1: Double, t: Double): Double {
+        return (1 - t) * v0 + t * v1
     }
 
     private fun noise() {
@@ -68,6 +115,16 @@ class DropPainter(canvas: JPanel) : Painter(canvas) {
             pal[idx - 1] = v
         }
         pal[pal.size - 1] = tmp
+
+        var tmpi = 0
+        for ((idx, v) in palColour.withIndex()) {
+            if (idx == 0) {
+                tmpi = v
+                continue
+            }
+            palColour[idx - 1] = v
+        }
+        palColour[palColour.size - 1] = tmpi
     }
 
     override fun load() {
@@ -110,6 +167,16 @@ class DropPainter(canvas: JPanel) : Painter(canvas) {
                     println("State is now 2")
                 }
             }
+
+            if (state == 2) {
+                lrp += 0.001
+                if (lrp >= 1.0) {
+                    lrp = 1.0
+                    state = 3
+                    println("State is now 3")
+                }
+            }
+
             t -= FPS
         }
 
@@ -118,9 +185,22 @@ class DropPainter(canvas: JPanel) : Painter(canvas) {
         //ig.color = BLACK
         //ig.fillRect(0, 0, canvas.width, canvas.height)
         for ((idx, v) in ns.withIndex()) {
-            val bw = (pal[v] * 255.0 * intensity).toInt()
-            val c = (bw shl 16) or (bw shl 8) or bw
-            pixels[idx] = c
+            if (state < 2) {
+                val bw = (pal[v] * 255.0 * intensity).toInt()
+                val c = (bw shl 16) or (bw shl 8) or bw
+                pixels[idx] = c
+            }
+            if (state == 2) {
+                val bw = (pal[v] * 255.0).toInt()
+                val c1 = (bw shl 16) or (bw shl 8) or bw
+                val c2 = palColour[v]
+                val c3 = lerpColours(c1, c2, lrp)
+                pixels[idx] = c3
+            }
+
+            if (state > 2) {
+                pixels[idx] = palColour[v]
+            }
         }
         ig.drawImage(bkg, 0, 0, null)
 
