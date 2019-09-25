@@ -1,5 +1,6 @@
 package croquette.ui
 
+import croquette.openSlideShow
 import croquette.ui.paint.DropPainter
 import croquette.ui.paint.PainterManager
 import croquette.util.Randomizer
@@ -41,6 +42,7 @@ class CWin : JFrame("Croquette") {
 
         open.background = GREY
         open.foreground = WHITE
+        open.isBorderPainted = false
         open.isFocusPainted = false
         var c = GridBagConstraints()
         c.gridx = 0
@@ -51,6 +53,7 @@ class CWin : JFrame("Croquette") {
 
         play.background = GREY
         play.foreground = WHITE
+        play.isBorderPainted = false
         play.isFocusPainted = false
         play.isEnabled = false
         c = GridBagConstraints()
@@ -132,8 +135,9 @@ class CWin : JFrame("Croquette") {
             time = if (time < 1000) 1000 else time
 
             isVisible = false
-            SlideShow(rand, time).exec()
-            dispose()
+            openSlideShow(rand, time)
+            //SlideShow(this, rand, time).exec()
+            //dispose()
         }
 
 

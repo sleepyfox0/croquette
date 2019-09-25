@@ -1,12 +1,21 @@
 package croquette.ui
 
-import croquette.util.Randomizer
+import croquette.openMainWin
 import croquette.ui.paint.PainterManager
 import croquette.ui.paint.TimePainter
+import croquette.util.Randomizer
 import croquette.util.Timer
-import java.awt.*
+import java.awt.Dimension
+import java.awt.GridBagConstraints
+import java.awt.GridBagLayout
+import java.awt.Insets
+import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
 import javax.imageio.ImageIO
-import javax.swing.*
+import javax.swing.JCheckBox
+import javax.swing.JFrame
+import javax.swing.JLabel
+import javax.swing.JPanel
 
 class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croquette") {
 
@@ -15,12 +24,14 @@ class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croqu
     private val contents = JPanel()
     private val cbPin = JCheckBox("pin")
     private val lTime = JLabel("Time!!!")
-    private val pImage = ImagePanel()
+    private val pImage = ImagePanel(this)
     private val pTS = JPanel()
     private val timer = Timer()
 
     private val pm = PainterManager()
     private val paintTS = TimePainter(pTS)
+
+    private var isPaused = false
 
     init {
         buildGUI()
@@ -28,7 +39,14 @@ class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croqu
 
         pImage.img = ImageIO.read(rnd.retreive())
         background = BLACK
-        defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
+        //defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
+        addWindowListener(object: WindowAdapter() {
+            override fun windowClosing(e: WindowEvent?) {
+                openMainWin()
+                isVisible = false
+                dispose()
+            }
+        })
         pm.add(paintTS)
     }
 
@@ -109,6 +127,16 @@ class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croqu
         pImage.img = ImageIO.read(rnd.retreive())
         repaint()
         startTimer()
+    }
+
+    fun skip() {
+        timer.isRunning = false
+    }
+
+    fun pause(): String {
+        isPaused = !isPaused
+        timer.isPaused = isPaused
+        return if (isPaused) "Unpause" else "Pause"
     }
 
     fun exec() {

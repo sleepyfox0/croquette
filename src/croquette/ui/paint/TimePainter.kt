@@ -1,7 +1,9 @@
 package croquette.ui.paint
 
 import croquette.ui.BLACK
+import croquette.ui.GREY
 import croquette.ui.RED
+import croquette.ui.pureColourLerp
 import java.awt.Graphics2D
 import javax.swing.JPanel
 
@@ -16,7 +18,7 @@ class TimePainter(canvas: JPanel) : Painter(canvas) {
 
         val percent = 1.0 - (current.toDouble() / total.toDouble())
         val size = (canvas.width * percent).toInt()
-        g.color = RED
+        g.color = pureColourLerp(RED, GREY, percent)
         g.fillRect(0, 0, size, canvas.height)
     }
 }
