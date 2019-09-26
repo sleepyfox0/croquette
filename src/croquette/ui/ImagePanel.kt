@@ -147,8 +147,6 @@ class ImagePanel(parent: SlideShow) : JPanel(null, true) {
             g.drawImage(img, x, y, w + x, h + y, 0, 0, img.width, img.height, null)
 
             if (isMouse) {
-                g.color =  Color(0.0f, 0.0f, 0.0f, 0.5f)
-                g.fillRect(0, 0, width, height)
                 g.translate(6, height - 31)
                 bPause.paint(g)
                 g.translate(106, 0)
