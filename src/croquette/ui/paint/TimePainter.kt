@@ -31,6 +31,9 @@ import croquette.ui.pureColourLerp
 import java.awt.Graphics2D
 import javax.swing.JPanel
 
+/**
+ * Paints the Time slider at the bottom of the SlideShow.
+ */
 class TimePainter(canvas: JPanel) : Painter(canvas) {
 
     var total = 0

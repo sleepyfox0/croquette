@@ -26,21 +26,28 @@ package croquette.ui
 
 import java.awt.Color
 
-//val BLACK = Color(0x101820)
 val RED = Color(0xd24040)
 val WHITE = Color(0xf0f0f0)
-//val GREY = Color(0x736464)
 val BLACK = Color(0x101010)
 val GREY = Color(0x505050)
 
+/**
+ * linear interpolates 2 colours and also returns a Color
+ */
 fun pureColourLerp(c1: Color, c2: Color, t: Double): Color {
     return Color(lerpColours(c1, c2, t))
 }
 
+/**
+ * linear interpolates 2 colours
+ */
 fun lerpColours(c1: Color, c2: Color, t: Double): Int {
     return lerpColours(c1.rgb, c2.rgb, t)
 }
 
+/**
+ * linear interpolates 2 colours
+ */
 fun lerpColours(c1: Int, c2: Int, t: Double): Int {
     val ir1 = (c1 and (0xff shl 16)) shr 16
     val ig1 = (c1 and (0xff shl 8)) shr 8
@@ -69,6 +76,7 @@ fun lerpColours(c1: Int, c2: Int, t: Double): Int {
     return (nri shl 16) or (ngi shl 8) or nbi
 }
 
-private fun lerp(v0: Double, v1: Double, t: Double): Double {
-    return (1 - t) * v0 + t * v1
-}
+/**
+ * linear interpolation
+ */
+private fun lerp(v0: Double, v1: Double, t: Double): Double = (1 - t) * v0 + t * v1

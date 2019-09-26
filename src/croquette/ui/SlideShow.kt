@@ -41,6 +41,9 @@ import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.JPanel
 
+/**
+ * As the name says
+ */
 class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croquette") {
 
     //private val t = 10000
@@ -62,7 +65,7 @@ class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croqu
         buildGUI()
         buildBehavior()
 
-        pImage.img = ImageIO.read(rnd.retreive())
+        pImage.img = ImageIO.read(rnd.retrieve())
         background = BLACK
         //defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
         addWindowListener(object: WindowAdapter() {
@@ -155,6 +158,9 @@ class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croqu
         isVisible = true
     }
 
+    /**
+     * Callback for timer updates
+     */
     private fun updateTimer(nt : Int) {
         paintTS.current = nt
         var seconds = (t - nt) / 1000
@@ -169,8 +175,11 @@ class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croqu
         timer.startTimer(this::tick, this::updateTimer)
     }
 
+    /**
+     * Callback for when the timer is finished
+     */
     private fun tick() {
-        pImage.img = ImageIO.read(rnd.retreive())
+        pImage.img = ImageIO.read(rnd.retrieve())
         repaint()
         startTimer()
     }

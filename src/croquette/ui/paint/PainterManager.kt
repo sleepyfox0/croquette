@@ -24,6 +24,9 @@
  */
 package croquette.ui.paint
 
+/**
+ * Manages individual Painters so only one Thread is used for active rendering.
+ */
 class PainterManager {
 
     var isRunning = true

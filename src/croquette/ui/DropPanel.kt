@@ -29,6 +29,11 @@ import java.awt.dnd.*
 import java.io.File
 import javax.swing.JPanel
 
+/**
+ * Used for dropping directories directly into the program
+ *
+ * Don't know if works on windows correctly. . .
+ */
 class DropPanel (val callback: (File) -> Unit, val ec: (String) -> Unit): JPanel(), DropTargetListener{
 
     override fun dropActionChanged(e: DropTargetDragEvent?) {

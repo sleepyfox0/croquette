@@ -36,6 +36,9 @@ import javax.swing.JButton
 import javax.swing.JPanel
 import kotlin.math.floor
 
+/**
+ * Displays the image slide show
+ */
 class ImagePanel(parent: SlideShow) : JPanel(null, true) {
 
     var img = BufferedImage(1, 1, BufferedImage.TYPE_BYTE_GRAY)
@@ -135,6 +138,8 @@ class ImagePanel(parent: SlideShow) : JPanel(null, true) {
     override fun paintComponent(g: Graphics?) {
         super.paintComponent(g)
         if (g is Graphics2D) {
+            //Resize image so that the size is proportional
+
             g.color = Color.WHITE
             g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
             var zoom: Double
@@ -170,7 +175,9 @@ class ImagePanel(parent: SlideShow) : JPanel(null, true) {
 
             g.drawImage(img, x, y, w + x, h + y, 0, 0, img.width, img.height, null)
 
+            //Draw overlay to pause and skip
             if (isMouse) {
+                //Components are painted manually!!
                 g.translate(6, height - 31)
                 bPause.paint(g)
                 g.translate(106, 0)

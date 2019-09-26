@@ -28,6 +28,12 @@ import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 import javax.swing.JPanel
 
+/**
+ * A Painter actively paints on top of a JPanel which serves as canvas
+ * Painters are managed by a PainterManager. The canvas of a Painter
+ * usually cannot display its normal contents anymore and must be done
+ * entirely by the programmer.
+ */
 abstract class Painter(val canvas: JPanel) {
 
     var db = BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB)
@@ -35,6 +41,10 @@ abstract class Painter(val canvas: JPanel) {
 
     open fun load() {}
 
+    /**
+     * Makes sure only correct values are used by paint.
+     * Also creates a double buffer strategy.
+     */
     fun prePaint() {
         isSizeChange = false
         if (canvas.width > db.width) {
@@ -57,5 +67,8 @@ abstract class Painter(val canvas: JPanel) {
         }
     }
 
+    /**
+     * Implement all rendering here.
+     */
     abstract fun paint(g: Graphics2D)
 }

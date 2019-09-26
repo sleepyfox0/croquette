@@ -36,7 +36,14 @@ import java.io.File
 import java.nio.file.Files
 import javax.swing.*
 
+/**
+ * Main window
+ * Users can open/or drop folders and run them if they are valid.
+ * It's also possible to select the session time.
+ */
 class CWin : JFrame("Croquette") {
+
+    //Files Java's ImageIO supports
     private val MIME_TYPES = setOf("image/png", "image/jpg", "image/jpeg", "image/gif")
 
     private val content = JPanel()
@@ -142,7 +149,6 @@ class CWin : JFrame("Croquette") {
                 val f = fc.selectedFile
                 handleFiles(f)
             }
-            resetTheThing()
         }
 
         play.addActionListener {
@@ -161,7 +167,6 @@ class CWin : JFrame("Croquette") {
 
             isVisible = false
             openSlideShow(rand, time, x, y, width, height)
-            resetTheThing()
         }
 
 
@@ -172,6 +177,9 @@ class CWin : JFrame("Croquette") {
         sSeconds.model = modelSeconds
     }
 
+    /**
+     * Goes through a folder and adds supported files to the Randomizer
+     */
     private fun handleFiles(f: File) {
         rand.clear()
         println("Selected: ${f.absolutePath}")
@@ -188,19 +196,11 @@ class CWin : JFrame("Croquette") {
         rand.list()
 
         play.isEnabled = rand.isReady
-        resetTheThing()
     }
 
     private fun handleError(s: String) {
         dP.errorMessage = s
         dP.errorTimer = 255
-    }
-
-    fun resetTheThing() {
-        dP.state = 0
-        dP.timer = 0
-        dP.intensity = 0.0
-        dP.lrp = 0.0
     }
 
     fun exec() {

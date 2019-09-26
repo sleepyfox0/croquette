@@ -51,7 +51,7 @@ class Randomizer {
         files.shuffle()
     }
 
-    fun retreive(): File {
+    fun retrieve(): File {
         val f = files[idx]
         idx++
         if (idx >= files.size) {
