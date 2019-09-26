@@ -6,6 +6,7 @@ import java.awt.Graphics2D
 import java.awt.RenderingHints
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import java.awt.event.MouseMotionAdapter
 import java.awt.image.BufferedImage
 import javax.swing.JButton
 import javax.swing.JPanel
@@ -66,23 +67,41 @@ class ImagePanel(parent: SlideShow) : JPanel(null, true) {
             }
 
             override fun mouseReleased(e: MouseEvent?) {
+                val r = bSkip.bounds
+                r.x = 112
+                r.y = height - 31
+
+                if (r.contains(e!!.point)) {
+                    parent.skip()
+                } else {
+                    bPause.text = parent.pause()
+                }
+                bSkip.background = GREY
+                bPause.background = GREY
+
+                repaint()
+            }
+        })
+
+        addMouseMotionListener(object: MouseMotionAdapter() {
+            override fun mouseDragged(e: MouseEvent?) {
                 var r = bPause.bounds
                 r.x = 6
                 r.y = height - 31
 
-                if (r.contains(e!!.point)) {
-                    bPause.text = parent.pause()
-                }
-                bPause.background = GREY
+                if (r.contains(e!!.point))
+                    bPause.background = GREY.brighter().brighter()
+                else
+                    bPause.background = GREY
 
                 r = bSkip.bounds
                 r.x = 112
                 r.y = height - 31
 
-                if (r.contains(e.point)) {
-                    parent.skip()
-                }
-                bSkip.background = GREY
+                if (r.contains(e.point))
+                    bSkip.background = GREY.brighter().brighter()
+                else
+                    bSkip.background = GREY
 
                 repaint()
             }

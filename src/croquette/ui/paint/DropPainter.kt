@@ -1,9 +1,11 @@
 package croquette.ui.paint
 
 import croquette.ui.GREY
+import croquette.ui.RED
 import croquette.ui.WHITE
 import croquette.ui.lerpColours
 import croquette.util.Perlin
+import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
@@ -16,7 +18,7 @@ import kotlin.math.sin
 class DropPainter(canvas: JPanel) : Painter(canvas) {
 
     private val FPS = ((1.0 / 24.0) * 1_000_000_000).toLong()
-    private val waiting = 10 * 24
+    private val waiting = 30 * 24
 
     private var img = BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB)
     private val font = JLabel().font
@@ -27,14 +29,17 @@ class DropPainter(canvas: JPanel) : Painter(canvas) {
     private var ns = IntArray(1)
     private var pal = DoubleArray(256)
     private var palColour = IntArray(256)
-    private var intensity = 0.0
+    var intensity = 0.0
 
-    private var state = 0
+    var state = 0
     private var lastTime: Long = 0
     private var t: Long = 0
 
-    private var timer = 0
-    private var lrp = 0.0
+    var timer = 0
+    var lrp = 0.0
+
+    var errorMessage = ""
+    var errorTimer = 0
 
     init {
         for ((idx, _) in pal.withIndex()) {
@@ -97,7 +102,7 @@ class DropPainter(canvas: JPanel) : Painter(canvas) {
     }
 
     override fun load() {
-        img = BufferedImage(canvas.width, canvas.height, BufferedImage.TYPE_INT_RGB)
+        img = BufferedImage(canvas.width, canvas.height, BufferedImage.TYPE_INT_ARGB)
         noise()
 
         lastTime = System.nanoTime()
@@ -105,7 +110,7 @@ class DropPainter(canvas: JPanel) : Painter(canvas) {
 
     override fun paint(g: Graphics2D) {
         if (isSizeChange) {
-            img = BufferedImage(canvas.width, canvas.height, BufferedImage.TYPE_INT_RGB)
+            img = BufferedImage(canvas.width, canvas.height, BufferedImage.TYPE_INT_ARGB)
             noise()
         }
 
@@ -119,6 +124,8 @@ class DropPainter(canvas: JPanel) : Painter(canvas) {
 
         while (t > FPS) {
             shiftPal()
+            errorTimer--
+            errorTimer = if (errorTimer < 0) 0 else errorTimer
 
             if (state == 0) {
                 timer += 1
@@ -171,14 +178,19 @@ class DropPainter(canvas: JPanel) : Painter(canvas) {
         // Print the User Message
         ig.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
         ig.font = font
-        val fw = ig.fontMetrics.stringWidth(txt)
-        val fx = canvas.width / 2 - fw / 2
+        var fw = ig.fontMetrics.stringWidth(txt)
+        var fx = canvas.width / 2 - fw / 2
         val fh = ig.fontMetrics.height
         val fy = canvas.height / 2 - fh / 2
         ig.color = GREY
         ig.drawString(txt, fx+2, fy+2)
         ig.color = WHITE
         ig.drawString(txt, fx, fy)
+
+        fw = ig.fontMetrics.stringWidth(errorMessage)
+        fx = canvas.width / 2 - fw / 2
+        ig.color = Color((RED.rgb and 0xffffff) or (errorTimer shl 24) , true)
+        ig.drawString(errorMessage, fx, fy + fh)
 
         g.drawImage(img, 0, 0, null)
     }

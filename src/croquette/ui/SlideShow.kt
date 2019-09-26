@@ -23,6 +23,7 @@ class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croqu
 
     private val contents = JPanel()
     private val cbPin = JCheckBox("pin")
+    private val cbBorder = JCheckBox("borderless")
     private val lTime = JLabel("Time!!!")
     private val pImage = ImagePanel(this)
     private val pTS = JPanel()
@@ -42,7 +43,7 @@ class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croqu
         //defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
         addWindowListener(object: WindowAdapter() {
             override fun windowClosing(e: WindowEvent?) {
-                openMainWin()
+                openMainWin(x, y, width, height)
                 isVisible = false
                 dispose()
             }
@@ -64,13 +65,23 @@ class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croqu
         c.anchor = GridBagConstraints.LINE_START
         contents.add(cbPin, c)
 
+        cbBorder.background = GREY
+        cbBorder.foreground = WHITE
+        cbBorder.isFocusable = false
+        c = GridBagConstraints()
+        c.fill = GridBagConstraints.NONE
+        c.gridx = 1
+        c.gridy = 0
+        c.anchor = GridBagConstraints.LINE_START
+        contents.add(cbBorder, c)
+
         //cbPin.foreground = Color.WHITE
 
         lTime.background = GREY
         lTime.foreground = WHITE
         c = GridBagConstraints()
         c.fill = GridBagConstraints.NONE
-        c.gridx = 1
+        c.gridx = 3
         c.gridy = 0
         c.anchor = GridBagConstraints.LINE_END
         c.insets = Insets(0, 6, 0, 6)
@@ -80,8 +91,8 @@ class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croqu
         c.fill = GridBagConstraints.BOTH
         c.gridx = 0
         c.gridy = 1
-        c.gridwidth = 2
-        c.weightx = 0.9
+        c.gridwidth = 4
+        c.weightx = 1.0
         c.weighty = 0.9
         c.anchor = GridBagConstraints.CENTER
         contents.add(pImage, c)
@@ -91,7 +102,8 @@ class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croqu
         c.fill = GridBagConstraints.HORIZONTAL
         c.gridx = 0
         c.gridy = 2
-        c.gridwidth = 2
+        c.gridwidth = 4
+        c.weightx = 1.0
         c.anchor = GridBagConstraints.LINE_START
         contents.add(pTS, c)
 
@@ -103,10 +115,20 @@ class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croqu
         cbPin.addItemListener {
             pin(cbPin.isSelected)
         }
+
+        cbBorder.addItemListener {
+            border(cbBorder.isSelected)
+        }
     }
 
     private fun pin(state: Boolean) {
         isAlwaysOnTop = state
+    }
+
+    private fun border(state: Boolean) {
+        dispose()
+        isUndecorated = state
+        isVisible = true
     }
 
     private fun updateTimer(nt : Int) {
@@ -139,9 +161,10 @@ class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croqu
         return if (isPaused) "Unpause" else "Pause"
     }
 
-    fun exec() {
+    fun exec(x: Int, y: Int, w: Int, h: Int) {
         pack()
-        setLocationRelativeTo(null)
+        setLocation(x, y)
+        setSize(w, h)
         isVisible = true
         startTimer()
         pm.go()

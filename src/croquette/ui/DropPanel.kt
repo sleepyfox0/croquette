@@ -6,19 +6,39 @@ import java.io.File
 import java.net.URL
 import javax.swing.JPanel
 
-class DropPanel (val callback: (File) -> Unit): JPanel(), DropTargetListener{
+class DropPanel (val callback: (File) -> Unit, val ec: (String) -> Unit): JPanel(), DropTargetListener{
 
     override fun dropActionChanged(e: DropTargetDragEvent?) {
     }
 
     override fun drop(e: DropTargetDropEvent?) {
         val trans = e?.transferable
-        if (trans?.isDataFlavorSupported(DataFlavor.stringFlavor)!!) {
+        if (trans?.isDataFlavorSupported(DataFlavor.javaFileListFlavor)!!) {
             e.acceptDrop(DnDConstants.ACTION_MOVE)
-            val filename = trans.getTransferData(DataFlavor.stringFlavor) as String
-            val f = File(URL(filename).toURI())
-            if (f.isDirectory) {
-                callback(f)
+            val files = trans.getTransferData(DataFlavor.stringFlavor)
+            if (files is List<*>) {
+                files.forEach {
+                    if (it is File) {
+                        if (it.isDirectory) {
+                            callback(it)
+                        }
+                    }
+                }
+            } else if(files is String) {
+                val filenames = files.split("\r\n")
+                filenames.forEach {
+                    if (it.isNotEmpty()) {
+                        val f = File(URL(it).toURI())
+                        if (f.isDirectory) {
+                            callback(f)
+                        } else {
+                            ec("Dropped file is not a directory!")
+                        }
+                    }
+                }
+
+            } else {
+                ec("Cannot handle selected files")
             }
         } else {
             e.rejectDrop()

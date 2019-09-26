@@ -6,12 +6,15 @@ import croquette.util.Randomizer
 
 val launcher = CWin()
 
-fun openMainWin() {
+fun openMainWin(x: Int, y: Int, w: Int, h: Int) {
+    launcher.setLocation(x, y)
+    launcher.setSize(w, h)
     launcher.isVisible = true
+    launcher.resetTheThing()
 }
 
-fun openSlideShow(rng: Randomizer, time: Int) {
-    SlideShow(rng, time).exec()
+fun openSlideShow(rng: Randomizer, time: Int, x: Int, y: Int, w: Int, h: Int) {
+    SlideShow(rng, time).exec(x, y, w, h)
 }
 
 fun main() {

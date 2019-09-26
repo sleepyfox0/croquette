@@ -16,13 +16,13 @@ class CWin : JFrame("Croquette") {
     private val MIME_TYPES = setOf("image/png", "image/jpg", "image/jpeg", "image/gif")
 
     private val content = JPanel()
-    private val open = JButton("Open")
+    private val open = JButton("Open...")
     private val play = JButton("Run")
     private val lMinutes = JLabel("Minutes:")
     private val sMinutes = JSpinner()
     private val lSeconds = JLabel("Seconds:")
     private val sSeconds = JSpinner()
-    private val drop = DropPanel(this::handleFiles)
+    private val drop = DropPanel(this::handleFiles, this::handleError)
 
     private val rand = Randomizer()
     private val pm = PainterManager()
@@ -45,7 +45,7 @@ class CWin : JFrame("Croquette") {
         open.isBorderPainted = false
         open.isFocusPainted = false
         var c = GridBagConstraints()
-        c.gridx = 0
+        c.gridx = 1
         c.gridy = 0
         c.anchor = GridBagConstraints.LINE_START
         c.insets = Insets(6, 6, 6, 6)
@@ -57,7 +57,7 @@ class CWin : JFrame("Croquette") {
         play.isFocusPainted = false
         play.isEnabled = false
         c = GridBagConstraints()
-        c.gridx = 1
+        c.gridx = 0
         c.gridy = 0
         c.anchor = GridBagConstraints.LINE_START
         c.insets = Insets(6, 6, 6, 6)
@@ -118,6 +118,7 @@ class CWin : JFrame("Croquette") {
                 val f = fc.selectedFile
                 handleFiles(f)
             }
+            resetTheThing()
         }
 
         play.addActionListener {
@@ -135,9 +136,8 @@ class CWin : JFrame("Croquette") {
             time = if (time < 1000) 1000 else time
 
             isVisible = false
-            openSlideShow(rand, time)
-            //SlideShow(this, rand, time).exec()
-            //dispose()
+            openSlideShow(rand, time, x, y, width, height)
+            resetTheThing()
         }
 
 
@@ -164,6 +164,19 @@ class CWin : JFrame("Croquette") {
         rand.list()
 
         play.isEnabled = rand.isReady
+        resetTheThing()
+    }
+
+    private fun handleError(s: String) {
+        dP.errorMessage = s
+        dP.errorTimer = 255
+    }
+
+    fun resetTheThing() {
+        dP.state = 0
+        dP.timer = 0
+        dP.intensity = 0.0
+        dP.lrp = 0.0
     }
 
     fun exec() {
