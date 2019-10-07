@@ -53,7 +53,7 @@ class CWin : JFrame("Croquette") {
     private val sMinutes = JSpinner()
     private val lSeconds = JLabel("Seconds:")
     private val sSeconds = JSpinner()
-    private val drop = DropPanel(this::handleFiles, this::handleError)
+    private val drop = DropPanel(this::clearFiles, this::handleFiles, this::handleError)
 
     private val rand = Randomizer()
     private val pm = PainterManager()
@@ -146,8 +146,11 @@ class CWin : JFrame("Croquette") {
             fc.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
             val selection = fc.showOpenDialog(this)
             if (selection == JFileChooser.APPROVE_OPTION) {
-                val f = fc.selectedFile
-                handleFiles(f)
+                clearFiles()
+                val f = fc.selectedFiles
+                f.forEach {
+                    handleFiles(it)
+                }
             }
         }
 
@@ -166,6 +169,9 @@ class CWin : JFrame("Croquette") {
             time = if (time < 1000) 1000 else time
 
             isVisible = false
+            println("Playing with the following files")
+            rand.shuffle()
+            rand.list()
             openSlideShow(rand, time, x, y, width, height)
         }
 
@@ -181,7 +187,6 @@ class CWin : JFrame("Croquette") {
      * Goes through a folder and adds supported files to the Randomizer
      */
     private fun handleFiles(f: File) {
-        rand.clear()
         println("Selected: ${f.absolutePath}")
         val files = f.listFiles()
         files?.forEach {
@@ -196,6 +201,10 @@ class CWin : JFrame("Croquette") {
         rand.list()
 
         play.isEnabled = rand.isReady
+    }
+
+    private fun clearFiles() {
+        rand.clear()
     }
 
     private fun handleError(s: String) {
