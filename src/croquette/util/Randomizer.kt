@@ -25,8 +25,10 @@
 package croquette.util
 
 import java.io.File
+import java.nio.file.Files
 
 class Randomizer {
+    private val MIME_TYPES = setOf("image/png", "image/jpg", "image/jpeg", "image/gif")
 
     private var files = mutableListOf<File>()
     private var idx = 0
@@ -35,6 +37,21 @@ class Randomizer {
 
     fun add(f: File) {
         files.add(f)
+    }
+
+    fun handleFiles(dir: File) {
+        println("Selected: ${dir.absolutePath}")
+        val files = dir.listFiles()
+        files?.forEach {
+            if (it.isFile) {
+                val mime = Files.probeContentType(it.toPath())
+                if (mime != null)
+                    if (MIME_TYPES.contains(mime.trim()))
+                        this.add(it)
+            }
+        }
+        this.shuffle()
+        this.list()
     }
 
     fun clear() {

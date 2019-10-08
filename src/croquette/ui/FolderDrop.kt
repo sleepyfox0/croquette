@@ -27,19 +27,45 @@ package croquette.ui
 import java.awt.datatransfer.DataFlavor
 import java.awt.dnd.*
 import java.io.File
-import javax.swing.JPanel
 
 /**
- * Used for dropping directories directly into the program
- *
- * Don't know if works on windows correctly. . .
+ * Loading folder via dropping them inside a component
  */
-class DropPanel (clear: () -> Unit, callback: (File) -> Unit, ec: (String) -> Unit): JPanel(){
+class FolderDrop(val clear: () -> Unit, val callback: (File) -> Unit, val ec: (String) -> Unit): DropTargetListener {
 
-    private val dropper = FolderDrop(clear, callback, ec)
-    private val target = DropTarget(this, dropper)
+    override fun drop(e: DropTargetDropEvent?) {
+        val trans = e?.transferable
+        if (trans?.isDataFlavorSupported(DataFlavor.javaFileListFlavor)!!) {
+            e.acceptDrop(DnDConstants.ACTION_MOVE)
+            val td = trans.getTransferData(DataFlavor.javaFileListFlavor) as List<*>
+            clear()
+            td.forEach {
+                if (it is File)
+                    if (it.isDirectory) {
+                        println(it.absolutePath)
+                        callback(it)
+                    } else {
+                        ec("Try using a directory. . .")
+                    }
+                else
+                    ec("The file is strange")
+            }
 
-    init {
-        background = BLACK
+        } else {
+            e.rejectDrop()
+        }
+    }
+
+    override fun dropActionChanged(e: DropTargetDragEvent?) {
+    }
+
+    override fun dragOver(e: DropTargetDragEvent?) {
+    }
+
+    override fun dragExit(e: DropTargetEvent?) {
+    }
+
+    override fun dragEnter(e: DropTargetDragEvent?) {
+        e?.acceptDrag(DnDConstants.ACTION_MOVE)
     }
 }

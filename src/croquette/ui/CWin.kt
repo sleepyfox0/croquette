@@ -33,7 +33,6 @@ import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.Insets
 import java.io.File
-import java.nio.file.Files
 import javax.swing.*
 
 /**
@@ -43,9 +42,6 @@ import javax.swing.*
  */
 class CWin : JFrame("Croquette") {
 
-    //Files Java's ImageIO supports
-    private val MIME_TYPES = setOf("image/png", "image/jpg", "image/jpeg", "image/gif")
-
     private val content = JPanel()
     private val open = JButton("Open...")
     private val play = JButton("Run")
@@ -53,10 +49,10 @@ class CWin : JFrame("Croquette") {
     private val sMinutes = JSpinner()
     private val lSeconds = JLabel("Seconds:")
     private val sSeconds = JSpinner()
-    private val drop = DropPanel(this::clearFiles, this::handleFiles, this::handleError)
 
     private val rand = Randomizer()
     private val pm = PainterManager()
+    private val drop = DropPanel(rand::clear, this::handleFiles, this::handleError)
     private val dP = DropPainter(drop)
 
     init {
@@ -146,7 +142,6 @@ class CWin : JFrame("Croquette") {
             fc.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
             val selection = fc.showOpenDialog(this)
             if (selection == JFileChooser.APPROVE_OPTION) {
-                clearFiles()
                 val f = fc.selectedFiles
                 f.forEach {
                     handleFiles(it)
@@ -188,23 +183,9 @@ class CWin : JFrame("Croquette") {
      */
     private fun handleFiles(f: File) {
         println("Selected: ${f.absolutePath}")
-        val files = f.listFiles()
-        files?.forEach {
-            if (it.isFile) {
-                val mime = Files.probeContentType(it.toPath())
-                if (mime != null)
-                    if (MIME_TYPES.contains(mime.trim()))
-                        rand.add(it)
-            }
-        }
-        rand.shuffle()
-        rand.list()
+        rand.handleFiles(f)
 
         play.isEnabled = rand.isReady
-    }
-
-    private fun clearFiles() {
-        rand.clear()
     }
 
     private fun handleError(s: String) {

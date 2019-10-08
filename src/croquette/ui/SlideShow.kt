@@ -33,8 +33,10 @@ import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.Insets
+import java.awt.dnd.DropTarget
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
+import java.io.File
 import javax.imageio.ImageIO
 import javax.swing.JCheckBox
 import javax.swing.JFrame
@@ -60,6 +62,9 @@ class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croqu
     private val paintTS = TimePainter(pTS)
 
     private var isPaused = false
+    private val fd = FolderDrop(rnd::clear, this::newFolders, this::onError)
+
+    private val target = DropTarget(this, fd)
 
     init {
         buildGUI()
@@ -192,6 +197,15 @@ class SlideShow(private val rnd: Randomizer, private val t: Int) : JFrame("Croqu
         isPaused = !isPaused
         timer.isPaused = isPaused
         return if (isPaused) "Unpause" else "Pause"
+    }
+
+    private fun onError(msg: String) {
+        println(msg)
+    }
+
+    private fun newFolders(f: File) {
+        rnd.handleFiles(f)
+        rnd.shuffle()
     }
 
     fun exec(x: Int, y: Int, w: Int, h: Int) {
